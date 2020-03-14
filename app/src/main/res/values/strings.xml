@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Atividade03_GPS</string>
+    <string name="action_settings">Settings</string>
+    <string name="editTextPlaceHolder">Search a place</string>
+    <string name="permissionGranted">Location permission granted</string>
+    <string name="gpsOn">GPS enabled</string>
+    <string name="permissionRequest">You must give location permission</string>
+    <string name="gpsOff">GPS disabled</string>
+    <string name="startTrip">Trip started</string>
+    <string name="begin">Begin</string>
+    <string name="end">End</string>
+    <string name="turnOffGPS">Turn off GPS</string>
+    <string name="turnOnGPS">Turn on GPS</string>
+    <string name="gpsPermission">Get GPS Permission</string>
+    <string name="distanceKm">Distance (km)</string>
+    <string name="timer">Timer</string>
+    <string name="no_gps_no_map">You must give location permission</string>
+    <string name="mustHaveLocationOn">You must have location turned on</string>
+</resources>
