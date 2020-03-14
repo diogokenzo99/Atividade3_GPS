@@ -606,6 +606,7 @@ color cardview_light_background
 color cardview_shadow_end_color
 color cardview_shadow_start_color
 color colorAccent
+color colorComplement
 color colorPrimary
 color colorPrimaryDark
 color design_bottom_navigation_shadow_color
@@ -1211,8 +1212,6 @@ id text2
 id textSpacerNoButtons
 id textSpacerNoTitle
 id textStart
-id textView
-id textView2
 id text_input_password_toggle
 id textinput_counter
 id textinput_error

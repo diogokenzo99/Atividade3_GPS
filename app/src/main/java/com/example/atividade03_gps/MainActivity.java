@@ -57,11 +57,6 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     FloatingActionButton searchButton;
 
-    private TextView textView;
-    private TextView textView2;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,12 +76,8 @@ public class MainActivity extends AppCompatActivity {
         locationModelBegin = new LocationModel();
         distanceCalculator = new Location("initialLocation");
         distanceCalculatorCurrent = new Location("crntLocation");
-        textView = findViewById(R.id.textView);
-        textView2 = findViewById(R.id.textView2);
-
 
         configGPS();
-//        configSearchEditText();
         configGpsPermissionButton();
         configOnGpsButton();
         configOffGpsButton();
@@ -96,106 +87,18 @@ public class MainActivity extends AppCompatActivity {
         configEndButton();
     }
 
-    private void turnOnGPS(){
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, locationListener);
-            Toast.makeText(this, getString(R.string.gpsOn), Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(this, getString(R.string.permissionRequest), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void turnOffGPS(){
         locationManager.removeUpdates(locationListener);
         Toast.makeText(this, getString(R.string.gpsOff), Toast.LENGTH_SHORT).show();
     }
 
-    private void getUserPermission(){
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    GPS_PERMISSION_REQUEST_ID
-            );
-        }
-        Toast.makeText(this, getString(R.string.permissionGranted), Toast.LENGTH_SHORT).show();
-    }
-
-    private void startTrip(){
-
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    locationModelBegin.latitude = location.getLatitude();
-                    locationModelBegin.longitude = location.getLongitude();
-                }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                }
-
-                @Override
-                public void onProviderEnabled(String provider) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String provider) {
-
-                }
-            }, null);
-        }
-
-        textView.setText(String.valueOf(locationModelBegin.latitude));
-        textView2.setText(String.valueOf(locationModelBegin.latitude));
-
-        distanceCalculator.setLatitude(locationModelBegin.latitude);
-        distanceCalculator.setLongitude(locationModelBegin.longitude);
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    locationModelProgress.latitude = location.getLatitude();
-                    locationModelProgress.longitude = location.getLongitude();
-                    distanceCalculatorCurrent.setLatitude(locationModelProgress.latitude);
-                    distanceCalculatorCurrent.setLongitude(locationModelProgress.longitude);
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-
-                }
-            }, null);
-            Toast.makeText(this, getString(R.string.startTrip), Toast.LENGTH_SHORT).show();
-
-            if(!chronometerIsRunning){
-                runTimeChronometer.setBase(SystemClock.elapsedRealtime());
-                runTimeChronometer.start();
-                chronometerIsRunning = true;
-            }
-        }
-        else{
-            Toast.makeText(this, R.string.mustHaveLocationOn, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void endTrip(){
         if(chronometerIsRunning){
+            runTimeChronometer.stop();
             runTimeChronometer.setBase(SystemClock.elapsedRealtime());
+            chronometerIsRunning = false;
         }
+        distanceRunTextView.setText("0");
     }
 
     private void configGPS(){
@@ -224,25 +127,6 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-//    private void configSearchEditText(){
-//        searchEditText.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                search = (String)charSequence;
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//
-//            }
-//        });
-//    }
-
     private void configGpsPermissionButton(){
         gpsPermissionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -252,6 +136,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void getUserPermission(){
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED){
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    GPS_PERMISSION_REQUEST_ID
+            );
+        }
+        Toast.makeText(this, getString(R.string.permissionGranted), Toast.LENGTH_SHORT).show();
+    }
+
     private void configOnGpsButton(){
         onGpsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,6 +154,60 @@ public class MainActivity extends AppCompatActivity {
                 turnOnGPS();
             }
         });
+    }
+
+    private void turnOnGPS(){
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, locationListener);
+            Toast.makeText(this, getString(R.string.gpsOn), Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this, getString(R.string.permissionRequest), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void configBeginButton(){
+        beginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startTrip();
+            }
+        });
+    }
+
+    private void startTrip(){
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    distanceCalculator.setLatitude(location.getLatitude());
+                    distanceCalculator.setLongitude(location.getLongitude());
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+
+                }
+            }, null);
+            if(!chronometerIsRunning){
+                runTimeChronometer.setBase(SystemClock.elapsedRealtime());
+                runTimeChronometer.start();
+                chronometerIsRunning = true;
+            }
+        }
+        else{
+            Toast.makeText(this, R.string.mustHaveLocationOn, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void configOffGpsButton(){
@@ -275,9 +224,10 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Uri uri = Uri.parse(String.format(Locale.getDefault(), "geo:%f,%f?q" + searchEditText.getText(), locationModelProgress.latitude, locationModelProgress.longitude));
+                Uri uri = Uri.parse(String.format(Locale.getDefault(), "geo:%f,%f?q=%s", locationModelProgress.latitude, locationModelProgress.longitude, searchEditText.getText()));
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 intent.setPackage("com.google.android.apps.maps");
+                startActivity(intent);
             }
         });
     }
@@ -286,18 +236,7 @@ public class MainActivity extends AppCompatActivity {
         runTimeChronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
-                distanceRunTextView.setText(String.format(String.valueOf(distanceCalculator.distanceTo(distanceCalculatorCurrent))));
-            }
-        });
-    }
-
-    private void configBeginButton(){
-
-
-        beginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startTrip();
+                distanceRunTextView.setText(String.format(String.valueOf(distanceCalculator.distanceTo(distanceCalculatorCurrent)/1000)));
             }
         });
     }
@@ -309,12 +248,6 @@ public class MainActivity extends AppCompatActivity {
                 endTrip();
             }
         });
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        turnOffGPS();
     }
 
     @Override
